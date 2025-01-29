@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linerai/utils/constants.dart';
+import 'package:linerai/utils/routes.dart';
 import 'package:linerai/widgets/quick_actions.dart';
 import 'package:linerai/widgets/response_bubble.dart';
 import 'package:linerai/widgets/typing_indicator.dart';
@@ -53,11 +54,22 @@ class ChatScreen extends StatelessWidget {
         return Scaffold(
           appBar: AppBar(
             title: Text(AppStrings.appName),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false,);
+                },
+                icon: Icon(Icons.logout),
+              )
+            ],
           ),
           body: Container(
             decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [const Color.fromARGB(255, 223, 239, 255), AppColors.backgroundEnd],
+                colors: [
+                  const Color.fromARGB(255, 223, 239, 255),
+                  AppColors.backgroundEnd
+                ],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -67,7 +79,8 @@ class ChatScreen extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     controller: _scrollController,
-                    itemCount: state.messages.length + (state.isLoading ? 1 : 0),
+                    itemCount:
+                        state.messages.length + (state.isLoading ? 1 : 0),
                     itemBuilder: (_, index) {
                       if (index < state.messages.length) {
                         final message = state.messages[index];
@@ -143,7 +156,9 @@ class ChatScreen extends StatelessWidget {
                               onPressed: () {
                                 final text = _controller.text;
                                 if (text.isNotEmpty && text.length <= 200) {
-                                  context.read<AiBloc>().add(SendMessageEvent(text));
+                                  context
+                                      .read<AiBloc>()
+                                      .add(SendMessageEvent(text));
                                   _controller.clear();
                                 }
                               },
@@ -151,8 +166,11 @@ class ChatScreen extends StatelessWidget {
                           ),
                           onSubmitted: (text) {
                             final trimmedText = text.trim();
-                            if (trimmedText.isNotEmpty && trimmedText.length <= 200) {
-                              context.read<AiBloc>().add(SendMessageEvent(trimmedText));
+                            if (trimmedText.isNotEmpty &&
+                                trimmedText.length <= 200) {
+                              context
+                                  .read<AiBloc>()
+                                  .add(SendMessageEvent(trimmedText));
                               _controller.clear();
                             }
                           },
@@ -168,4 +186,4 @@ class ChatScreen extends StatelessWidget {
       },
     );
   }
-} 
+}

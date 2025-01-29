@@ -6,6 +6,12 @@ class AppStrings {
   static const loadingMessage = "Thinking of something uplifting... 🌼";
   static const errorMessage = "A little hiccup. Tap to retry! 🫶";
   static const hintText = "Ask for a joke, motivation... 🌻";
+  static const loginTitle = "Sign-In";
+  static const welcomeBack = "LinerAI";
+  static const signInToContinue = "Sign-In to Continue";
+  static const forgotPassword = "Forgot Password";
+  static const noAccount = "Create Account";
+  static const signUp = "Sign Up";
   
   // Auth Strings
   static const login = "Login";
@@ -25,6 +31,11 @@ class AppStrings {
   static const String logout = 'Logout';
   static const String logoutConfirmation = 'Are you sure you want to logout?';
   static const String cancel = 'Cancel';
+  static const signUpTitle = "Sign-Up";
+  static const createAccount = "Create Account";
+  static const signUpPrompt = "Sign-Up to continue";
+  static const nameHint = "Enter Full Name";
+  static const alreadyHaveAccount = "Already have account?";
 }
 
 class AppColors {
