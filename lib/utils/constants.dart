@@ -2,7 +2,8 @@ import 'dart:ui';
 
 class AppStrings {
   static const appName = "One-Line Sunshine";
-  static const defaultResponse = "Ask me for a joke, motivation, or anything! 🌞";
+  static const defaultResponse =
+      "Ask me for a joke, motivation, or anything! 🌞";
   static const loadingMessage = "Thinking of something uplifting... 🌼";
   static const errorMessage = "A little hiccup. Tap to retry! 🫶";
   static const hintText = "Ask for a joke, motivation... 🌻";
@@ -12,7 +13,7 @@ class AppStrings {
   static const forgotPassword = "Forgot Password";
   static const noAccount = "Create Account";
   static const signUp = "Sign Up";
-  
+
   // Auth Strings
   static const login = "Login";
   static const signup = "Sign Up";
@@ -36,7 +37,25 @@ class AppStrings {
   static const signUpPrompt = "Sign-Up to continue";
   static const nameHint = "Enter Full Name";
   static const alreadyHaveAccount = "Already have account?";
+  static const String resetPassword = 'Reset Password';
+  static const String resetPasswordInstructions =
+      'Enter your email address and we\'ll send you a link to reset your password';
+  static const String sendResetLink = 'Send Reset Link';
+  static const String backToLogin = 'Back to Login';
+  static const String verifyEmailTitle = 'Verify Email';
+static const String verificationSentMessage = 'Verification Email Sent!';
+static const String verificationInstructions = 'Please check your inbox';
+static const String resendVerificationEmail = 'Resend Verification Email';
+static const String verificationResent = 'Verification email resent successfully';
+static const String verificationError = 'Error sending verification email';
+
 }
+
+//cloud storage constants
+
+const aiChat = "ai_chat";
+const userChat = "user_chat";
+const ownerUserIdFieldName = "user_id";
 
 class AppColors {
   static const primary = Color(0xFF6C5CE7);

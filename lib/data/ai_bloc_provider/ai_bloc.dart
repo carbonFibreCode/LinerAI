@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:linerai/data/model/message.dart';
-import 'package:linerai/data/provider/ai_events.dart';
-import 'package:linerai/data/provider/ai_states.dart';
-import 'package:linerai/data/service/service/ai_service.dart';
+import 'package:linerai/data/ai_bloc_provider/ai_events.dart';
+import 'package:linerai/data/ai_bloc_provider/ai_states.dart';
+import 'package:linerai/data/service/ai_service/ai_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 
 class AiBloc extends Bloc<AiEvent, AiState> {
@@ -15,7 +15,7 @@ class AiBloc extends Bloc<AiEvent, AiState> {
     on<InitializeChatEvent>(_onInitializeChat);
     on<SendMessageEvent>(_onSendMessage);
     on<CheckConnectionEvent>(_onCheckConnection);
-    on<RetryEvent>(_onRetry);
+    //on<RetryEvent>(_onRetry);
 
     // Initialize connectivity monitoring
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
@@ -72,15 +72,15 @@ class AiBloc extends Bloc<AiEvent, AiState> {
     }
   }
 
-  Future<void> _onRetry(
-    RetryEvent event,
-    Emitter<AiState> emit,
-  ) async {
-    if (state is AiErrorState || state is AiOfflineState) {
-      // Reset to success state with current messages
-      emit(AiSuccessState(messages: state.messages));
-    }
-  }
+  // Future<void> _onRetry(
+  //   RetryEvent event,
+  //   Emitter<AiState> emit,
+  // ) async {
+  //   if (state is AiErrorState || state is AiOfflineState) {
+  //     // Reset to success state with current messages
+  //     emit(AiSuccessState(messages: state.messages));
+  //   }
+  // }
 
   @override
   Future<void> close() {

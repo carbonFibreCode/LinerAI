@@ -1,55 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:linerai/data/service/auth_service/bloc/auth_bloc.dart';
+import 'package:linerai/data/service/auth_service/bloc/auth_event.dart';
 import 'package:linerai/utils/constants.dart';
-import 'package:linerai/utils/routes.dart';
 import 'package:linerai/widgets/quick_actions.dart';
 import 'package:linerai/widgets/response_bubble.dart';
 import 'package:linerai/widgets/typing_indicator.dart';
-import 'package:linerai/data/provider/ai_bloc.dart';
-import 'package:linerai/data/provider/ai_events.dart';
-import 'package:linerai/data/provider/ai_states.dart';
+import 'package:linerai/data/ai_bloc_provider/ai_bloc.dart';
+import 'package:linerai/data/ai_bloc_provider/ai_events.dart';
+import 'package:linerai/data/ai_bloc_provider/ai_states.dart';
 
-class ChatScreen extends StatelessWidget {
-  final TextEditingController _controller = TextEditingController();
-  final ScrollController _scrollController = ScrollController();
-
-  ChatScreen({super.key});
+class ChatScreen extends StatefulWidget {
+  ChatScreen({Key? key}) : super(key: key);
 
   @override
-  Widget build(BuildContext context) {
+  State<ChatScreen> createState() => _ChatScreenState();
+}
+
+class _ChatScreenState extends State<ChatScreen> {
+  late TextEditingController _controller;
+  late ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+    _scrollController = ScrollController();
+    
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<AiBloc>().add(InitializeChatEvent());
     });
+  }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _scrollToBottom() {
+    if (_scrollController.hasClients) {
+      _scrollController.animateTo(
+        _scrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 300),
+        curve: Curves.easeOut,
+      );
+    }
+  }
+
+  void _handleError(BuildContext context, AiState state) {
+    if (state is AiErrorState || state is AiOfflineState) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppStrings.errorMessage),
+          
+        ),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return BlocBuilder<AiBloc, AiState>(
       builder: (context, state) {
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          if (_scrollController.hasClients) {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-          }
-        });
-
-        // Add error handling
-        if (state is AiErrorState || state is AiOfflineState) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(state.error ?? AppStrings.errorMessage),
-                action: SnackBarAction(
-                  label: 'Retry',
-                  onPressed: () {
-                    context.read<AiBloc>().add(RetryEvent());
-                  },
-                ),
-              ),
-            );
-          });
-        }
+        WidgetsBinding.instance.addPostFrameCallback((_) => _scrollToBottom());
+        WidgetsBinding.instance.addPostFrameCallback((_) => _handleError(context, state));
 
         return Scaffold(
           appBar: AppBar(
@@ -57,7 +74,7 @@ class ChatScreen extends StatelessWidget {
             actions: [
               IconButton(
                 onPressed: () {
-                  Navigator.of(context).pushNamedAndRemoveUntil(loginRoute, (route) => false,);
+                  context.read<AuthBloc>().add(AuthEventLogout());
                 },
                 icon: Icon(Icons.logout),
               )
@@ -79,8 +96,7 @@ class ChatScreen extends StatelessWidget {
                 Expanded(
                   child: ListView.builder(
                     controller: _scrollController,
-                    itemCount:
-                        state.messages.length + (state.isLoading ? 1 : 0),
+                    itemCount: state.messages.length + (state.isLoading ? 1 : 0),
                     itemBuilder: (_, index) {
                       if (index < state.messages.length) {
                         final message = state.messages[index];

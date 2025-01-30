@@ -1,8 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:linerai/data/service/auth_service/auth_exceptions.dart';
+import 'package:linerai/data/service/auth_service/bloc/auth_bloc.dart';
+import 'package:linerai/data/service/auth_service/bloc/auth_event.dart';
+import 'package:linerai/data/service/auth_service/bloc/auth_state.dart';
 import 'package:linerai/utils/constants.dart';
+import 'package:linerai/utils/dialogs/error_dialog.dart';
 
 class SignUpScreen extends StatefulWidget {
-
   SignUpScreen({Key? key}) : super(key: key);
 
   @override
@@ -10,37 +15,69 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  final TextEditingController _nameController = TextEditingController();
+  TextEditingController _nameController = TextEditingController();
 
-  final TextEditingController _emailController = TextEditingController();
+  TextEditingController _emailController = TextEditingController();
 
-  final TextEditingController _passwordController = TextEditingController();
+  TextEditingController _passwordController = TextEditingController();
 
-  final TextEditingController _confirmPasswordController = TextEditingController();
+  TextEditingController _confirmPasswordController = TextEditingController();
+
+  bool _isFormValid = false;
 
   bool _passwordsMatch = true;
-  
+
+  @override
+  void initState() {
+    super.initState();
+    _nameController = TextEditingController();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+    _confirmPasswordController = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(AppStrings.signUpTitle),
-      ),
-      resizeToAvoidBottomInset: false,
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              const Color.fromARGB(255, 223, 239, 255),
-              AppColors.backgroundEnd
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+    return BlocListener<AuthBloc, AuthState>(
+      listener: (context, state) async {
+        if (state is AuthStateRegistering) {
+          if (state.exception is WeakPasswordAuthException) {
+            await showErrorDialog(context, 'Weak Password');
+          } else if (state.exception is EmailAlreadyInUseAuthException) {
+            await showErrorDialog(context, 'email already in use');
+          } else if (state.exception is InvalidEmailAuthException) {
+            await showErrorDialog(context, 'Enter valid email');
+          } else if (state.exception is GenericAuthException) {
+            await showErrorDialog(context, 'failed to register');
+          }
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(AppStrings.signUpTitle),
         ),
-        child: Builder(
-          builder: (context) {
+        resizeToAvoidBottomInset: false,
+        body: Container(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                const Color.fromARGB(255, 223, 239, 255),
+                AppColors.backgroundEnd
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+          child: Builder(builder: (context) {
             return SafeArea(
               child: Padding(
                 padding: EdgeInsets.all(16),
@@ -50,10 +87,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     SizedBox(height: 20),
                     Text(
                       AppStrings.createAccount,
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.primary,
-                      ),
+                      style:
+                          Theme.of(context).textTheme.headlineMedium?.copyWith(
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.primary,
+                              ),
                     ),
                     SizedBox(height: 10),
                     Text(
@@ -66,6 +104,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       controller: _nameController,
                       hintText: AppStrings.nameHint,
                       icon: Icons.person,
+                      onChanged: _validatePasswords,
                     ),
                     SizedBox(height: 16),
                     _buildTextField(
@@ -73,6 +112,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       hintText: AppStrings.emailHint,
                       icon: Icons.email,
                       keyboardType: TextInputType.emailAddress,
+                      onChanged: _validatePasswords,
                     ),
                     SizedBox(height: 16),
                     _buildTextField(
@@ -80,6 +120,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       hintText: AppStrings.passwordHint,
                       icon: Icons.lock,
                       isPassword: true,
+                      onChanged: _validatePasswords,
                     ),
                     SizedBox(height: 16),
                     _buildTextField(
@@ -90,13 +131,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
                       onChanged: _validatePasswords,
                     ),
                     if (!_passwordsMatch)
-                        Padding(
-                          padding: const EdgeInsets.only(top: 8.0),
-                          child: Text(
-                            AppStrings.passwordMismatch,
-                            style: TextStyle(color: Colors.red, fontSize: 12),
-                          ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8.0),
+                        child: Text(
+                          AppStrings.passwordMismatch,
+                          style: TextStyle(color: Colors.red, fontSize: 12),
                         ),
+                      ),
                     SizedBox(height: 24),
                     _buildSignUpButton(context),
                     SizedBox(height: 16),
@@ -105,7 +146,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
               ),
             );
-          }
+          }),
         ),
       ),
     );
@@ -148,9 +189,15 @@ class _SignUpScreenState extends State<SignUpScreen> {
       ),
     );
   }
-   void _validatePasswords(String value) {
+
+  void _validatePasswords(String value) {
     setState(() {
-      _passwordsMatch = _passwordController.text == _confirmPasswordController.text;
+      _passwordsMatch =
+          _passwordController.text == _confirmPasswordController.text;
+      _isFormValid = _passwordsMatch &&
+          _nameController.text.isNotEmpty &&
+          _emailController.text.isNotEmpty &&
+          _passwordController.text.isNotEmpty;
     });
   }
 
@@ -169,19 +216,25 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ],
       ),
       child: ElevatedButton(
-        onPressed: () {
-          // TODO: Implement sign up logic
-        },
+        onPressed: _isFormValid
+            ? () {
+                final email = _emailController.text;
+                final password = _passwordController.text;
+                context
+                    .read<AuthBloc>()
+                    .add(AuthEventRegister(email, password));
+              }
+            : null,
         child: Padding(
           padding: const EdgeInsets.symmetric(vertical: 16.0),
           child: Text(
             AppStrings.signUp,
-            style: TextStyle(fontSize: 18,
-            color: Color.fromARGB(255, 255, 255, 255)),
+            style: TextStyle(
+                fontSize: 18, color: Color.fromARGB(255, 255, 255, 255)),
           ),
         ),
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primary,
+          backgroundColor: _isFormValid ? AppColors.primary : Color.fromARGB(0, 125, 125, 125),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(10),
           ),
@@ -197,7 +250,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
         Text(AppStrings.alreadyHaveAccount),
         TextButton(
           onPressed: () {
-            Navigator.pop(context);
+            context.read<AuthBloc>().add(
+                            const AuthEventLogout(),
+                          );
           },
           child: Text(AppStrings.login),
         ),

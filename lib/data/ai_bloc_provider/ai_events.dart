@@ -24,9 +24,9 @@ class CheckConnectionEvent extends AiEvent {
 }
 
 /// Event when retrying after an error
-class RetryEvent extends AiEvent {
-  const RetryEvent();
-}
+// class RetryEvent extends AiEvent {
+//   const RetryEvent();
+// }
 
 /// Event when initializing the chat
 class InitializeChatEvent extends AiEvent {

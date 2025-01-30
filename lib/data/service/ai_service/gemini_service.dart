@@ -24,7 +24,7 @@ class GeminiService implements AiService {
         Content.text(
           'You are a friendly AI assistant that always responds in one concise line. '
           'If given a request for a joke, make it friendly and appropriate. '
-          'If asked for motivation, be inspiring but brief. '
+          'If asked for motivation, be inspiring and try to give motivational words of great people. '
           'Current request: $prompt'
         )
       ];
