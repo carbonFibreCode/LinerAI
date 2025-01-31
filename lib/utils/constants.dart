@@ -53,9 +53,10 @@ static const String verificationError = 'Error sending verification email';
 
 //cloud storage constants
 
-const aiChat = "ai_chat";
-const userChat = "user_chat";
+const aiChatFieldName = "ai_chat";
+const userChatFieldName = "user_chat";
 const ownerUserIdFieldName = "user_id";
+const timeStampFieldName = "timestamp";
 
 class AppColors {
   static const primary = Color(0xFF6C5CE7);

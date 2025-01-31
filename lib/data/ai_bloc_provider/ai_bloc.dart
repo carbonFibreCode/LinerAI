@@ -15,9 +15,7 @@ class AiBloc extends Bloc<AiEvent, AiState> {
     on<InitializeChatEvent>(_onInitializeChat);
     on<SendMessageEvent>(_onSendMessage);
     on<CheckConnectionEvent>(_onCheckConnection);
-    //on<RetryEvent>(_onRetry);
 
-    // Initialize connectivity monitoring
     _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
       (List<ConnectivityResult> results) {
         if (results.contains(ConnectivityResult.none)) {
@@ -39,20 +37,16 @@ class AiBloc extends Bloc<AiEvent, AiState> {
     Emitter<AiState> emit,
   ) async {
     try {
-      // Add user message to the list
       final List<Message> updatedMessages = List.from(state.messages)
         ..add(Message(text: event.message, isUser: true));
-      
-      // Show loading state
+
       emit(AiLoadingState(messages: updatedMessages));
 
-      // Get AI response
-      final response = await _aiService.getResponse(event.message);
-      
-      // Add AI response to messages
+      final response =
+          await _aiService.getResponse(event.message, event.userId);
+
       updatedMessages.add(Message(text: response, isUser: false));
-      
-      // Update state with new messages
+
       emit(AiSuccessState(messages: updatedMessages));
     } catch (e) {
       emit(AiErrorState(
@@ -72,19 +66,9 @@ class AiBloc extends Bloc<AiEvent, AiState> {
     }
   }
 
-  // Future<void> _onRetry(
-  //   RetryEvent event,
-  //   Emitter<AiState> emit,
-  // ) async {
-  //   if (state is AiErrorState || state is AiOfflineState) {
-  //     // Reset to success state with current messages
-  //     emit(AiSuccessState(messages: state.messages));
-  //   }
-  // }
-
   @override
   Future<void> close() {
     _connectivitySubscription?.cancel();
     return super.close();
   }
-} 
+}

@@ -20,7 +20,7 @@ class ChatMessage {
   ChatMessage.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot) : 
   documentId = snapshot.id,
   ownerUserId = snapshot.data()[ownerUserIdFieldName],
-  aiChats = snapshot.data()[aiChat],
-  userChats = snapshot.data()[userChat],  
-  timestamp = DateTime.now();  
+  aiChats = snapshot.data()[aiChatFieldName],
+  userChats = snapshot.data()[userChatFieldName],  
+  timestamp = (snapshot.data()['timestamp'] as Timestamp).toDate();  
 }

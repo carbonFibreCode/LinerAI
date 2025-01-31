@@ -6,33 +6,36 @@ class FirebaseCloudStorage {
   final chats = FirebaseFirestore.instance.collection('chats');
 
   FirebaseCloudStorage._sharedInstance();
-  static final FirebaseCloudStorage _shared =
-      FirebaseCloudStorage._sharedInstance();
+  static final FirebaseCloudStorage _shared = FirebaseCloudStorage._sharedInstance();
   factory FirebaseCloudStorage() => _shared;
 
   Stream<Iterable<ChatMessage>> allChats({required String ownerUserId}) {
-    final allChats = chats
+    return chats
         .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
-        .orderBy('timestamp', descending : true)
+        .orderBy(timeStampFieldName, descending: true)
+        .limit(25)
         .snapshots()
         .map((event) => event.docs.map((doc) => ChatMessage.fromSnapshot(doc)));
-    return allChats;
   }
 
-  Future<ChatMessage> createMessage({required String ownerUserId}) async {
+  Future<ChatMessage> createMessage(
+      {required String ownerUserId, String? aichat, String? userChat}) async {
     final newMessage = await chats.add({
       ownerUserIdFieldName: ownerUserId,
-      aiChat: '',
-      userChat: '',
+      aiChatFieldName: aichat ?? '',
+      userChatFieldName: userChat ?? '',
+      timeStampFieldName: FieldValue.serverTimestamp(),
     });
 
     final fetchedChat = await newMessage.get();
+    final data = fetchedChat.data() as Map<String, dynamic>;
+
     return ChatMessage(
       documentId: fetchedChat.id,
       ownerUserId: ownerUserId,
-      aiChats: '',
-      userChats: '',
-      timestamp: DateTime.now(),
+      aiChats: data[aiChatFieldName] ?? '',
+      userChats: data[userChatFieldName] ?? '',
+      timestamp: (data[timeStampFieldName] as Timestamp).toDate(),
     );
   }
 }

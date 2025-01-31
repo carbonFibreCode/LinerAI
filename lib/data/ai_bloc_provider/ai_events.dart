@@ -11,8 +11,9 @@ abstract class AiEvent extends Equatable {
 /// Event when user sends a message
 class SendMessageEvent extends AiEvent {
   final String message;
+  final String userId;
 
-  const SendMessageEvent(this.message);
+  const SendMessageEvent(this.message, this.userId);
 
   @override
   List<Object?> get props => [message];

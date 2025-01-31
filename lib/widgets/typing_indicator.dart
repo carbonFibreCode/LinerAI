@@ -11,13 +11,13 @@ class TypingIndicator extends StatelessWidget {
     return Align(
       alignment: Alignment.centerLeft,
       child: Container(
-        padding: EdgeInsets.all(16),
+        padding: EdgeInsets.all(5),
         margin: EdgeInsets.symmetric(vertical: 8, horizontal: 16),
         constraints:
             BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
         decoration: BoxDecoration(
             color: Colors.grey.shade200,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(10),
             boxShadow: [
               BoxShadow(
                 color: const Color.fromARGB(55, 0, 0, 0),
