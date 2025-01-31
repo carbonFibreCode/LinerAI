@@ -57,7 +57,7 @@ const aiChatFieldName = "ai_chat";
 const userChatFieldName = "user_chat";
 const ownerUserIdFieldName = "user_id";
 const timeStampFieldName = "timestamp";
-
+const isUserFieldName = "is_user";
 class AppColors {
   static const primary = Color(0xFF6C5CE7);
   static const backgroundStart = Color(0xFFF8F9FA);

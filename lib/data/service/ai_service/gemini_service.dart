@@ -1,6 +1,5 @@
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:linerai/data/service/cloud_service/firebase_cloud_storage.dart';
 import 'ai_service.dart';
 
 class GeminiService implements AiService {
@@ -35,12 +34,6 @@ class GeminiService implements AiService {
       if (text == null || text.isEmpty) {
         throw Exception('Empty response from Gemini');
       }
-
-      await FirebaseCloudStorage().createMessage(
-        ownerUserId: userId,
-        userChat: prompt,
-        aichat: text,
-      );
 
       return text.trim().replaceAll('\n', ' ').replaceAll(RegExp(r'\s+'), ' ');
     } catch (e) {

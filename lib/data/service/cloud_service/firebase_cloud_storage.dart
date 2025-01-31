@@ -13,29 +13,35 @@ class FirebaseCloudStorage {
     return chats
         .where(ownerUserIdFieldName, isEqualTo: ownerUserId)
         .orderBy(timeStampFieldName, descending: true)
-        .limit(25)
+        .limit(15)
         .snapshots()
         .map((event) => event.docs.map((doc) => ChatMessage.fromSnapshot(doc)));
   }
 
-  Future<ChatMessage> createMessage(
-      {required String ownerUserId, String? aichat, String? userChat}) async {
+  Future<ChatMessage> createMessage({
+    required String ownerUserId,
+    String? aichat,
+    String? userChat,
+    required bool isUser,
+  }) async {
     final newMessage = await chats.add({
       ownerUserIdFieldName: ownerUserId,
       aiChatFieldName: aichat ?? '',
       userChatFieldName: userChat ?? '',
       timeStampFieldName: FieldValue.serverTimestamp(),
+      isUserFieldName: isUser,
     });
 
     final fetchedChat = await newMessage.get();
     final data = fetchedChat.data() as Map<String, dynamic>;
-
+    
     return ChatMessage(
       documentId: fetchedChat.id,
       ownerUserId: ownerUserId,
       aiChats: data[aiChatFieldName] ?? '',
       userChats: data[userChatFieldName] ?? '',
       timestamp: (data[timeStampFieldName] as Timestamp).toDate(),
+      isUser: data[isUserFieldName],
     );
   }
 }

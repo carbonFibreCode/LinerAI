@@ -9,12 +9,14 @@ class ChatMessage {
   final String aiChats;
   final String userChats;
   final DateTime timestamp;
+  final bool isUser;
 
   const ChatMessage({    required this.documentId,
     required this.ownerUserId,
     required this.aiChats,
     required this.userChats,
     required this.timestamp,
+    required this.isUser,
   });
 
   ChatMessage.fromSnapshot(QueryDocumentSnapshot<Map<String, dynamic>> snapshot) : 
@@ -22,5 +24,8 @@ class ChatMessage {
   ownerUserId = snapshot.data()[ownerUserIdFieldName],
   aiChats = snapshot.data()[aiChatFieldName],
   userChats = snapshot.data()[userChatFieldName],  
-  timestamp = (snapshot.data()['timestamp'] as Timestamp).toDate();  
+  timestamp = snapshot.data()[timeStampFieldName] != null 
+      ? (snapshot.data()[timeStampFieldName] as Timestamp).toDate() 
+      : DateTime.now(), 
+  isUser = snapshot.data()[isUserFieldName];
 }

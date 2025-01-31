@@ -5,6 +5,8 @@ import 'package:linerai/data/ai_bloc_provider/ai_events.dart';
 import 'package:linerai/data/ai_bloc_provider/ai_states.dart';
 import 'package:linerai/data/service/ai_service/ai_service.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:linerai/data/service/auth_service/firebase_auth_provider.dart';
+import 'package:linerai/data/service/cloud_service/firebase_cloud_storage.dart';
 
 class AiBloc extends Bloc<AiEvent, AiState> {
   final AiService _aiService;
@@ -40,12 +42,28 @@ class AiBloc extends Bloc<AiEvent, AiState> {
       final List<Message> updatedMessages = List.from(state.messages)
         ..add(Message(text: event.message, isUser: true));
 
+      String userId = FirebaseAuthProvider().currentUser!.id;
+
+      await FirebaseCloudStorage().createMessage(
+        ownerUserId: userId,
+        userChat: event.message,
+        aichat: null,
+        isUser: true,
+      );
+
       emit(AiLoadingState(messages: updatedMessages));
 
       final response =
           await _aiService.getResponse(event.message, event.userId);
 
       updatedMessages.add(Message(text: response, isUser: false));
+
+      await FirebaseCloudStorage().createMessage(
+        ownerUserId: userId,
+        userChat: null,
+        aichat: response,
+        isUser: false,
+      );
 
       emit(AiSuccessState(messages: updatedMessages));
     } catch (e) {
